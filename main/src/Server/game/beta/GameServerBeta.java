@@ -3,21 +3,23 @@ package Server.game.beta;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class GameServerBeta {
-    private static int members;
     private static volatile int[] bank;
     private static ArrayList<ClientThread> clients = new ArrayList<>();
+    public static boolean isGameOver=false;
+
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket=new ServerSocket(12345);
         System.out.println("Введите количество игроков:");
         Scanner sc = new Scanner(System.in);
 
-        members=sc.nextByte();
+        int members = sc.nextByte();
         bank=new int[members];
 
         for (int i = 0; i < members; i++) {
@@ -30,11 +32,13 @@ public class GameServerBeta {
         for (ClientThread client:clients){
             client.start();
         }
+
     }
     static class ClientThread extends Thread{
 
         Socket client;
-        int send;
+        Move send;
+        boolean isActive=true;
         final ObjectInputStream input;
         final ObjectOutputStream output;
         ClientThread(Socket socket) throws IOException {
@@ -46,13 +50,9 @@ public class GameServerBeta {
         @Override
         public void run() {
             try {
-                while (true) {
-                    send = (int) input.readObject();
-                    System.out.println("ставка "+send);
-                    System.out.println("банк "+(bank[0]+=send));
-                    for (ClientThread clientThread : clients) {
-                        clientThread.output.writeObject(send);
-                    }
+                while (!isGameOver) {                  //конец игры, когда 1 !isLost
+                    //сюда добавить активирование всех игроков которые не проиграли, но скинули на прошлом круге
+                    oneGameLap();
                 }
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
@@ -60,5 +60,23 @@ public class GameServerBeta {
                 e.printStackTrace();
             }
         }
+
+        //один цикл стола, до разделения банка
+        public void oneGameLap() throws IOException,ClassNotFoundException{
+            for (int i = 0; i < 4; i++) {
+               everyPlayer();
+            }
+        }
+
+        //определить очередность хода игроков, изменяя myTurn
+        public void everyPlayer() throws IOException,ClassNotFoundException{
+            send = (Move) input.readObject();
+            System.out.println(send.name+" " + send.move+" "+send.bet);
+            System.out.println("банк " + (bank[0] += send.bet));
+            for (ClientThread clientThread : clients) {
+                clientThread.output.writeObject(send);
+            }
+        }
     }
+
 }

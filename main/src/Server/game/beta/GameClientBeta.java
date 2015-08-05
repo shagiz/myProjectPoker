@@ -8,31 +8,36 @@ public class GameClientBeta extends Thread {
     private int bet;
     private int myTurn;
 
-    static ObjectInputStream in;
+    private static BufferedReader inu;
+    private static ObjectInputStream in;
+    private static ObjectOutputStream out;
 
 
     public static void main(String[] args) throws IOException {
         Socket socket=new Socket("localhost",12345);
-        BufferedReader inu=new BufferedReader(new InputStreamReader(System.in));
-        ObjectOutputStream out=new ObjectOutputStream(socket.getOutputStream());
+        inu=new BufferedReader(new InputStreamReader(System.in));
+        out=new ObjectOutputStream(socket.getOutputStream());
 
         in=new ObjectInputStream(socket.getInputStream());
 
         new GameClientBeta().start();
-
-        String fromUser;
-        while ((fromUser=inu.readLine())!=null){
-            out.writeObject(fromUser);
+        int myChoose=0;
+        while (myChoose!=11) {
+            myChoose=Integer.parseInt(inu.readLine());
+            switch (myChoose) {
+                case 1:rise();
+                    break;
+            }
         }
     }
 
     @Override
     public void run() {
-        String fromServer;
+        Object fromServer;
         try {
 
             while (true){
-                fromServer= (String) in.readObject();
+                fromServer= in.readObject();
                 print(fromServer);
             }
         } catch (IOException e) {
@@ -42,7 +47,7 @@ public class GameClientBeta extends Thread {
         }
     }
 
-    synchronized void print(String string){
+    synchronized void print(Object string){
         System.out.println(string);
     }
 
@@ -52,7 +57,9 @@ public class GameClientBeta extends Thread {
     public void fold(){
     }
 
-    public void rise(){
+    public static void rise() throws IOException {
+        System.out.println("ПОДНЯТЬ НА");
+        out.writeObject(Integer.parseInt(inu.readLine()));
     }
 
     public void allIn(){

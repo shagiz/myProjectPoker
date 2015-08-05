@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class GameServerBeta {
     private static int members;
-    private static int[] bank;
+    private static volatile int[] bank;
     private static ArrayList<ClientThread> clients = new ArrayList<>();
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket=new ServerSocket(12345);
@@ -34,7 +34,7 @@ public class GameServerBeta {
     static class ClientThread extends Thread{
 
         Socket client;
-        String send;
+        int send;
         final ObjectInputStream input;
         final ObjectOutputStream output;
         ClientThread(Socket socket) throws IOException {
@@ -47,8 +47,9 @@ public class GameServerBeta {
         public void run() {
             try {
                 while (true) {
-                    send = (String) input.readObject();
-                    System.out.println(send);
+                    send = (int) input.readObject();
+                    System.out.println("ставка "+send);
+                    System.out.println("банк "+(bank[0]+=send));
                     for (ClientThread clientThread : clients) {
                         clientThread.output.writeObject(send);
                     }

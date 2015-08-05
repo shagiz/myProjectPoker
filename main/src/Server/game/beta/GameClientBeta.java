@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.Socket;
 
 public class GameClientBeta extends Thread {
-    private int numberOfChips;
+    private static int numberOfChips=1000;
     private int bet;
     private int myTurn;
 
@@ -27,6 +27,9 @@ public class GameClientBeta extends Thread {
             switch (myChoose) {
                 case 1:rise();
                     break;
+                case 2:allIn();
+                    break;
+
             }
         }
     }
@@ -59,10 +62,14 @@ public class GameClientBeta extends Thread {
 
     public static void rise() throws IOException {
         System.out.println("ПОДНЯТЬ НА");
-        out.writeObject(Integer.parseInt(inu.readLine()));
+        int riseUp=Integer.parseInt(inu.readLine());
+        numberOfChips-=riseUp;
+        out.writeObject(riseUp);
     }
 
-    public void allIn(){
+    public static void allIn() throws IOException {
+        System.out.println("All-in");
+        out.writeObject(numberOfChips);
 
     }
 

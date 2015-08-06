@@ -4,61 +4,36 @@ import java.io.*;
 import java.net.Socket;
 
 public class GameClientBeta extends Thread {
-    private static int numberOfChips;
-    private static boolean myTurn=true;
-    private static boolean isLost=false;
+    private static int currentChipBalance=1000;
 
-    public static String playerName;
+    static ObjectOutputStream out;
+    static ObjectInputStream in;
+    static BufferedReader inu;
+    public static void main(String[] args) throws IOException {
+        boolean isLost=false;
 
-    private static BufferedReader inu;
-    private static ObjectInputStream in;
-    private static ObjectOutputStream out;
-
-    private static Move move;
-
-
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        System.out.println("Подключаемся к серверу. Порт 12345");
         Socket socket=new Socket("localhost",12345);
+        System.out.println("Соединение установлено"+socket);
         inu=new BufferedReader(new InputStreamReader(System.in));
         out=new ObjectOutputStream(socket.getOutputStream());
         in=new ObjectInputStream(socket.getInputStream());
 
-        numberOfChips=1000;
-
-        playerName=String.valueOf(socket.getLocalPort());
         new GameClientBeta().start();
-        int myChoose=0;
-        while (!isLost){
-            if(myTurn) {                   //очередность хода:true - мой ход, false - нет
-                myChoose = Integer.parseInt(inu.readLine());
-                switch (myChoose) {
-                    case 1:
-                        myTurn = false;
-                        move=new Move("rise",numberOfChips,rise(),isLost);
-                        out.writeObject(move);
-                        break;
-                    case 2:
-                        myTurn = false;
-                        move=new Move("all-in",0,allIn(),isLost);
-                        out.writeObject(move);
-                        break;
 
-                }
-            }else try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        String fromUser;
+        while ((fromUser=inu.readLine())!=null){
+            out.writeObject(fromUser);
         }
     }
 
     @Override
     public void run() {
-        Move fromServer;
+        String fromServer;
         try {
 
             while (true){
-                fromServer= (Move) in.readObject();
+                fromServer= (String) in.readObject();
                 print(fromServer);
             }
         } catch (IOException e) {
@@ -68,32 +43,12 @@ public class GameClientBeta extends Thread {
         }
     }
 
-    synchronized void print(Move move){
-        System.out.println(move.name+" " + move.move+" "+move.bet+" chips left"+move.currentChips);
+    synchronized void print(String string){
+        System.out.println(string);
     }
 
-    public void check(){
+    public static Move fold(){
+        return new Move("fold",currentChipBalance,0,false);
     }
-
-    public void fold(){
-    }
-
-    public static int rise() throws IOException {
-        System.out.println("ПОДНЯТЬ НА");
-        int riseUp=Integer.parseInt(inu.readLine());
-        numberOfChips-=riseUp;
-        return riseUp;
-    }
-
-    public static int allIn() throws IOException {
-        System.out.println("All-in");
-        return numberOfChips;
-
-    }
-
-    public void call(){
-    }
-
-
 }
 

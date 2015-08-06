@@ -6,11 +6,10 @@ import java.io.Serializable;
  * Created by shagi on 06.08.15.
  */
 public class Move implements Serializable {
-    String name=GameClientBeta.playerName;
-    String move;
-    boolean isLost;
-    int currentChips;
-    int bet;
+    public String move;
+    public boolean isLost;
+    public int currentChips;
+    public int bet;
 
     Move(String move, int currentChips,int bet, boolean isLost){
         this.move=move;

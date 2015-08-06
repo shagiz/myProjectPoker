@@ -3,9 +3,7 @@ package Server.MyServer;
 import java.io.*;
 import java.net.Socket;
 
-/**
- * Created by shagi on 03.08.15.
- */
+
 public class Client extends Thread{
     static ObjectOutputStream out;
     static ObjectInputStream in;

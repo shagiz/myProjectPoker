@@ -6,6 +6,7 @@ import java.net.Socket;
 public class GameClientBeta extends Thread {
     private static int currentChipBalance=1000;
 
+
     static ObjectOutputStream out;
     static ObjectInputStream in;
     static BufferedReader inu;

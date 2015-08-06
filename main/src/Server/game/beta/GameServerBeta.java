@@ -14,7 +14,7 @@ public class GameServerBeta {
 
     private static ArrayList<PlayerThread> players=new ArrayList<>();
 
-    private static volatile String move;
+    private static volatile Move move;
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         ServerSocket serverSocket=new ServerSocket(12345);
         System.out.println("Сервер создан: " + serverSocket);
@@ -38,9 +38,9 @@ public class GameServerBeta {
             while (!isRoundEnd){
                 for (PlayerThread player:players){
                     if (player.isActive) {
-                        move = (String) player.input.readObject();
-                       // if (move.name.equals("fold"))player.isActive=false;
-                        System.out.println(move);//move.move+" "+move.currentChips+" "+move.bet);
+                        move = (Move) player.input.readObject();
+                       if (move.move.equals("fold"))player.isActive=false;
+                        System.out.println(move.move+" "+move.currentChips+" "+move.bet);
                         for (PlayerThread playerThread : players) {
                             try {
                                 playerThread.output.writeObject(move);

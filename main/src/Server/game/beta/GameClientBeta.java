@@ -21,19 +21,37 @@ public class GameClientBeta extends Thread {
 
         new GameClientBeta().start();
 
-        String fromUser;
-        while ((fromUser=inu.readLine())!=null){
-            out.writeObject(fromUser);
+        while (!isLost){
+            System.out.printf("1.Rise\n2.All-In\n3.check\n4.call\n5.fold\n10.....\n");
+            int myChoose = Integer.parseInt(inu.readLine());
+            switch (myChoose){
+                case 1:out.writeObject(rise());
+                    break;
+                case 2:
+                    out.writeObject(allIn());
+                    break;
+                case 3:out.writeObject(check());
+                    break;
+                case 4:out.writeObject(call());
+                    break;
+                case 5:out.writeObject(fold());
+                    break;
+                case 10:return;
+                
+            }
         }
     }
 
+
+
+
     @Override
     public void run() {
-        String fromServer;
+        Move fromServer;
         try {
 
             while (true){
-                fromServer= (String) in.readObject();
+                fromServer= (Move) in.readObject();
                 print(fromServer);
             }
         } catch (IOException e) {
@@ -43,12 +61,29 @@ public class GameClientBeta extends Thread {
         }
     }
 
-    synchronized void print(String string){
-        System.out.println(string);
+    synchronized void print(Move move){
+        System.out.println(move.move+" "+move.currentChips+" "+move.bet);
     }
 
     public static Move fold(){
         return new Move("fold",currentChipBalance,0,false);
     }
+
+    private static Move call() {
+        return new Move("call",currentChipBalance,123,false);
+    }
+
+    private static Move check() {
+        return new Move("check",currentChipBalance,123,false);
+    }
+
+    private static Move allIn() {
+        return new Move("all-in",currentChipBalance,321,false);
+    }
+
+    private static Move rise() {
+        return new Move("rise",currentChipBalance,222,false);
+    }
+
 }
 
